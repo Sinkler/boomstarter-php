@@ -1,34 +1,82 @@
 <?php
-class boomstarter {
+/**
+ * Boomstarter
+ * 
+ * Набор методом для работы с API
+ * 
+ * @author <dj@boomstarter.ru>
+ * @version 1.0
+ */
+class Boomstarter
+{
+    /**
+     * UUID магазина
+     *
+     * @var string
+     */
+    private $uuid;
+    
+    /**
+     * Token для доступа к API
+     *
+     * @var string
+     */
+    private $token;
+	
+    /**
+     * Конструктор класса, объявление переменных
+     *
+     * @param uuid $uuid
+     * @param token $token
+     */
+    public function __construct($uuid, $token)
+    {
+        $this->uuid = $uuid;
+        $this->token = $token;
+    }
+	
+    /**
+     * Получить список подарков
+     *
+     * @param type string
+     * @return array
+     */
+    public function gifts($type = null)
+    {
+        $data = self::getData($type);
+        print_r($data);
+        return $data;
+    }
 
-	private static $instance;
-	private function __construct() {
-		$this->uuid = '';
-		$this->token = '';
-	}
-	private function __clone() {}
-  	public static function getInstance() {
-    	if (self::$instance === null) {
-    	 	self::$instance = new self;
-    	}
-    	return self::$instance;
-  	}
-  	
-  	public function setShop($uuid,$token) {
-	  	$this->uuid = $uuid;
-	  	$this->token = $token;
-  	}
-  	
-  	public function gifts($type = null) {
-	  	$data = json_decode(file_get_contents('https://boomstarter.ru/api/v1.1/partners/gifts'.($type ? '/'.$type : '').'?shop_uuid='.$this->uuid.'&shop_token='.$this->token),1);
-		print_r($data);
-  	}
+    /**
+     * Показать кнопку "Хочу в подарок"
+     *
+     * @return string
+     */
+    public function gift($id)
+    {
+        return '<a href="#" product-id="'.$id.'" boomstarter-button-style="glassy">Хочу в подарок</a><script type="text/javascript" src="//boomstarter.ru/assets/gifts/api/v1.js" async="async"></script>';
+    }
 
-    public function gift($id) {
-        $text = '<a href="#" product-id="'.$id.'" boomstarter-button-style="glassy">Хочу в подарок</a>';
-        $text .= '<script type="text/javascript" src="//boomstarter.ru/assets/gifts/api/v1.js" async="async"></script>';
-        return $text;
-	}
-
+    /**
+     * Получить список подарков
+     *
+     * @param type string
+     * @param post string
+     * @return array
+     */
+    private function getData($type = null, $post = null)
+    {
+        $url = 'https://boomstarter.ru/api/v1.1/partners/gifts'.($type ? '/'.$type : '').'?shop_uuid='.$this->uuid.'&shop_token='.$this->token;
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        if ($post) {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+        }
+        $data = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($data,1);
+    }
 }
-?>
