@@ -105,7 +105,9 @@ class Boomstarter
         $ch = curl_init('https://boomstarter.ru/api/v1.1/partners'.$url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        if ($put) curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        if ($put) {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+        }
         if ($post) {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
