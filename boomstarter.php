@@ -64,17 +64,20 @@ class Boomstarter
         switch ($type) {
             case 'order':
                 $url = '/gifts/'.$uuid.'/order';
+                $put = false;
                 break;
             case 'schedule':
                 $url = '/gifts/'.$uuid.'/schedule';
+                $put = false;
                 break;
             case 'delivery_state':
                 $url = '/gifts/'.$uuid.'/delivery_state';
+                $put = true;
                 break;
         }
         $param['shop_uuid'] = $this->uuid;
         $param['shop_token'] = $this->token;
-        $data = self::getData($url, http_build_query($param));
+        $data = self::getData($url, http_build_query($param), $put);
         return $data;
     }
 
@@ -94,13 +97,15 @@ class Boomstarter
      *
      * @param url string
      * @param post string
+     * @param put boolean
      * @return array
      */
-    private function getData($url, $post = null)
+    private function getData($url, $post = null, $put = false)
     {
         $ch = curl_init('https://boomstarter.ru/api/v1.1/partners'.$url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        if ($put) curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
         if ($post) {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
