@@ -2,7 +2,7 @@
 /**
  * Boomstarter
  * 
- * Набор методом для работы с API
+ * Набор методов для работы с API
  * 
  * @author <dj@boomstarter.ru>
  * @version 1.0
@@ -39,18 +39,49 @@ class Boomstarter
      * Получить список подарков
      *
      * @param type string
+     * @param param array
      * @return array
      */
-    public function gifts($type = null)
+    public function giftList($type = null, $param = array())
     {
-        $data = self::getData($type);
-        print_r($data);
+        $param['shop_uuid'] = $this->uuid;
+        $param['shop_token'] = $this->token;
+        $url = '/gifts'.($type ? '/'.$type : '').'?'.http_build_query($param);
+        $data = self::getData($url);
+        return $data;
+    }
+    
+    /**
+     * Изменить статус подарка
+     *
+     * @param type string
+     * @param uuid string
+     * @param param array
+     * @return array
+     */
+    public function giftStatus($type, $uuid, $param = array())
+    {
+        switch ($type) {
+            case 'order':
+                $url = '/gifts/'.$uuid.'/order';
+                break;
+            case 'schedule':
+                $url = '/gifts/'.$uuid.'/schedule';
+                break;
+            case 'delivery_state':
+                $url = '/gifts/'.$uuid.'/delivery_state';
+                break;
+        }
+        $param['shop_uuid'] = $this->uuid;
+        $param['shop_token'] = $this->token;
+        $data = self::getData($url, http_build_query($param));
         return $data;
     }
 
     /**
      * Показать кнопку "Хочу в подарок"
      *
+     * @param id integer
      * @return string
      */
     public function gift($id)
@@ -59,16 +90,15 @@ class Boomstarter
     }
 
     /**
-     * Получить список подарков
+     * Запрос на получение данных
      *
-     * @param type string
+     * @param url string
      * @param post string
      * @return array
      */
-    private function getData($type = null, $post = null)
+    private function getData($url, $post = null)
     {
-        $url = 'https://boomstarter.ru/api/v1.1/partners/gifts'.($type ? '/'.$type : '').'?shop_uuid='.$this->uuid.'&shop_token='.$this->token;
-        $ch = curl_init($url);
+        $ch = curl_init('https://boomstarter.ru/api/v1.1/partners'.$url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         if ($post) {
